@@ -15,6 +15,10 @@
                     @endif
 
                     You are logged in!
+
+                    <hr>
+
+                    <a href="{{ url('products') }}">Products</a>
                 </div>
             </div>
         </div>
