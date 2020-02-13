@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-const baseUrl = "http://192.168.0.3:8000/";
+const baseUrl = "";
 
 class Product extends Component {
     constructor(props) {
@@ -14,6 +14,10 @@ class Product extends Component {
             formDescription: '',
             formPrice: '',
             formQuantity: '',
+
+            // to edit resource
+            productId: 0,
+            isEdit: false
         }
 
         // OnChange functions: input forms
@@ -38,10 +42,14 @@ class Product extends Component {
     renderList() {
         return this.state.products.map((data) => {
             return (
-                <tr>
+                <tr key={data.id}>
                     <td>{data.name}</td>
                     <td>{data.description}</td>
                     <td>{data.price}</td>
+                    <td>{data.quantity}</td>
+                    <td>
+                        <button className="btn btn-info" onClick={() => this.showModalEdit(data)}>Edit</button>
+                    </td>
                 </tr>
             )
         })
@@ -63,6 +71,18 @@ class Product extends Component {
         this.setState({ formQuantity: event.target.value });
     }
 
+    showModalCreate() {
+        this.setState({
+            productId: 0,
+            formName: '',
+            formDescription: '',
+            formPrice: '',
+            formQuantity: '',
+            isEdit: false
+        })
+        $("#exampleModal").modal("show");
+    }
+
     sendNetworkProduct() {
         const formData = new FormData()
         formData.append('name', this.state.formName)
@@ -82,6 +102,41 @@ class Product extends Component {
         })
     }
 
+    showModalEdit(data) {
+        this.setState({
+            formName: data.name,
+            formDescription: data.description,
+            formPrice: data.price,
+            formQuantity: data.quantity,
+            productId: data.id,
+            isEdit: true
+        })
+        $("#exampleModal").modal("show");
+    }
+
+    sendNetworkUpdate() {
+        const formData = {
+            name: this.state.formName,
+            description: this.state.formDescription,
+            price: this.state.formPrice,
+            quantity: this.state.formQuantity,
+        }
+
+        axios.put(baseUrl + `api/products/${this.state.productId}`, formData)
+            .then(response => {
+                if (response.data.success == true) {
+                    alert(response.data.message)
+                    // cargar datos de nuevo
+                    this.loadData()
+                    $("#exampleModal").modal("hide");
+                }
+            })
+            .catch(error => {
+                alert("sendNetworkUpdate " + error)
+                console.log(error)
+            })
+    }
+
     render() {
         return (
             <div className="container">
@@ -91,15 +146,15 @@ class Product extends Component {
                             <div className="card-header">Products</div>
                             <div className="card-body">
                                 {/* Button trigger modal */}
-                                <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                                    Register
-                                </button>
+                                <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#exampleModal" onClick={() => this.showModalCreate()}>Register</button>
                                 <table className="table table-bordered order-table">
                                     <thead>
                                         <tr>
                                             <th>Product</th>
                                             <th>Description</th>
                                             <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="bodytable">
@@ -112,7 +167,7 @@ class Product extends Component {
                                     <div className="modal-dialog" role="document">
                                         <div className="modal-content">
                                             <div className="modal-header">
-                                                <h5 className="modal-title" id="exampleModalLabel">Register Form</h5>
+                                                <h5 className="modal-title" id="exampleModalLabel">Product Form</h5>
                                                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">×</span>
                                                 </button>
@@ -137,7 +192,12 @@ class Product extends Component {
                                             </div>
                                             <div className="modal-footer">
                                                 <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                <button type="button" className="btn btn-primary" onClick={() => this.sendNetworkProduct()}>Save changes</button>
+                                                {
+                                                    this.state.isEdit ?
+                                                        <button type="button" className="btn btn-primary" onClick={() => this.sendNetworkUpdate()}>Edit</button>
+                                                        :
+                                                        <button type="button" className="btn btn-primary" onClick={() => this.sendNetworkProduct()}>Register</button>
+                                                }
                                             </div>
                                         </div>
                                     </div>

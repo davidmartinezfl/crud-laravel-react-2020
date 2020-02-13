@@ -82,7 +82,21 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $product = Product::find($id);
+
+        $product->name = $request->input('name');
+        $product->description = $request->input('description');
+        $product->price = $request->input('price');
+        $product->quantity = $request->input('quantity');
+
+        $product->save();
+
+        $response = [
+            'message' => 'Saved successfully',
+            'success' => true
+        ];
+
+        return response()->json($response, 201);
     }
 
     /**
