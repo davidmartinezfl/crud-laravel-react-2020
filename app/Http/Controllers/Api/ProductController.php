@@ -36,12 +36,15 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        Product::create([
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'price' => $request->input('price'),
-            'quantity' => $request->input('quantity')
-        ]);
+
+        $product = new Product;
+
+        $product->name = $request->name;
+        $product->description = $request->description;
+        $product->price = $request->price;
+        $product->quantity = $request->quantity;
+
+        $product->save();
 
         $response = [
             'message' => 'Registered successfully',
@@ -84,10 +87,10 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
 
-        $product->name = $request->input('name');
-        $product->description = $request->input('description');
-        $product->price = $request->input('price');
-        $product->quantity = $request->input('quantity');
+        $product->name = $request->name;
+        $product->description = $request->description;
+        $product->price = $request->price;
+        $product->quantity = $request->quantity;
 
         $product->save();
 
