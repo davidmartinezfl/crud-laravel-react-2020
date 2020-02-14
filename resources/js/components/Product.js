@@ -17,7 +17,11 @@ class Product extends Component {
 
             // to edit resource
             productId: 0,
-            isEdit: false
+            isEdit: false,
+
+            // for the search engine
+            productsAux: [],
+            textSearch: ''
         }
 
         // OnChange functions: input forms
@@ -25,6 +29,7 @@ class Product extends Component {
         this.handleChangeDescription = this.handleChangeDescription.bind(this);
         this.handleChangePrice = this.handleChangePrice.bind(this);
         this.handleChangeQuantity = this.handleChangeQuantity.bind(this);
+        this.handleChangeFilter = this.handleChangeFilter.bind(this);
     }
 
     componentDidMount() {
@@ -33,7 +38,10 @@ class Product extends Component {
 
     loadData() {
         axios.get(baseUrl + 'api/products').then(response => {
-            this.setState({ products: response.data })
+            this.setState({
+                products: response.data,
+                productAux: response.data
+            })
         }).catch(error => {
             alert("Error " + error)
         })
@@ -160,6 +168,26 @@ class Product extends Component {
             })
     }
 
+    handleChangeFilter(event) {
+        var text = event.target.value // input search
+        const data = this.state.productAux
+        const newData = data.filter(function (item) {
+            const itemDataName = item.name.toUpperCase()
+            const itemDataDescripction = item.description.toUpperCase()
+            const itemDataPrice = item.price.toUpperCase()
+            const itemDataQuantity = item.quantity
+
+            const itemData = itemDataName + " " + itemDataDescripction + " " + itemDataPrice + " " + itemDataQuantity
+            const textData = text.toUpperCase()
+            return itemData.indexOf(textData) > -1
+        })
+
+        this.setState({
+            products: newData,
+            textSearch: text,
+        })
+    }
+
     render() {
         return (
             <div className="container">
@@ -168,6 +196,8 @@ class Product extends Component {
                         <div className="card">
                             <div className="card-header">Products</div>
                             <div className="card-body">
+                                <input type="text" className="form-control" placeholder="Search" value={this.state.textSearch} onChange={this.handleChangeFilter} />
+                                <br />
                                 {/* Button trigger modal */}
                                 <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#exampleModal" onClick={() => this.showModalCreate()}>Register</button>
                                 <table className="table table-bordered order-table">
@@ -244,7 +274,6 @@ class Product extends Component {
                                                 <button type="button" className="btn btn-primary" onClick={() => this.sendNetworkDelete()}>Delete</button>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
