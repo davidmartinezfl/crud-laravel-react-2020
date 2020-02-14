@@ -49,6 +49,7 @@ class Product extends Component {
                     <td>{data.quantity}</td>
                     <td>
                         <button className="btn btn-info" onClick={() => this.showModalEdit(data)}>Edit</button>
+                        <button className="btn btn-danger" onClick={() => this.showModalDelete(data)}>Delete</button>
                     </td>
                 </tr>
             )
@@ -137,6 +138,28 @@ class Product extends Component {
             })
     }
 
+    showModalDelete(data) {
+        this.setState({ productId: data.id })
+        $("#exampleModalDelete").modal("show");
+    }
+
+    sendNetworkDelete() {
+        const formData = new FormData()
+        formData.append('id', this.state.productId)
+
+        axios.delete(baseUrl + `api/products/${this.state.productId}`, formData)
+            .then(response => {
+                if (response.data.success == true) {
+                    alert(response.data.message)
+                    // para cargar datos de nuevo
+                    this.loadData()
+                    $("#exampleModalDelete").modal("hide");
+                }
+            }).catch(error => {
+                alert("Error " + error)
+            })
+    }
+
     render() {
         return (
             <div className="container">
@@ -162,7 +185,7 @@ class Product extends Component {
                                     </tbody>
                                 </table>
 
-                                {/* Modal */}
+                                {/* Modal Register & Edit */}
                                 <div className="modal fade" id="exampleModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                     <div className="modal-dialog" role="document">
                                         <div className="modal-content">
@@ -200,6 +223,28 @@ class Product extends Component {
                                                 }
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* Modal Delete */}
+                                <div className="modal fade" id="exampleModalDelete" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div className="modal-dialog" role="document">
+                                        <div className="modal-content">
+                                            <div className="modal-header">
+                                                <h5 className="modal-title" id="exampleModalLabel">Delete</h5>
+                                                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">×</span>
+                                                </button>
+                                            </div>
+                                            <div className="modal-body">
+                                                <p>Are you sure you want to delete a product?</p>
+                                            </div>
+                                            <div className="modal-footer">
+                                                <button type="button" className="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                <button type="button" className="btn btn-primary" onClick={() => this.sendNetworkDelete()}>Delete</button>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
